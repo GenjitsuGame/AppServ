@@ -1,34 +1,53 @@
 package bibliotheque;
 
+import java.util.Timer;
+
 public class Livre implements Document {
-	private int numero;
-	private boolean dispo;
-	@Override
-	public int numero() {
-		return numero;
-	}
 
-	@Override
-	public void reserver(Abonne ab) throws PasLibreException {
-		
-	}
+    private int numero;
+    private int abonne;
+    private Timer delaiReservation;
+    private final Object verrou;
 
-	@Override
-	public void emprunter(Abonne ab) throws PasLibreException {
-		
-	}
+    public Livre(int numero) {
+        this.numero = numero;
+        this.abonne = -1;
+        this.delaiReservation = null;
+        this.verrou = new Object();
+    }
 
-	@Override
-	public void rendreDispo() {
-		
-	}
+    private class RendreDispoTask {
 
-	public boolean isDispo() {
-		return dispo;
-	}
+    }
 
-	public void setDispo(boolean dispo) {
-		this.dispo = dispo;
-	}
+    @Override
+    public int numero() {
+        return numero;
+    }
+
+    @Override
+    public void reserver(Abonne ab) throws PasLibreException {
+
+    }
+
+    @Override
+    public void emprunter(Abonne ab) throws PasLibreException {
+
+    }
+
+    @Override
+    public void rendreDispo() {
+        this.abonne = -1;
+    }
+
+    public boolean isDispo() {
+        return this.abonne < 0;
+    }
+
+
+    @Override
+    public Abonne getEmprunteur() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }
