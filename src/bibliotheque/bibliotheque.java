@@ -7,7 +7,6 @@ public class Bibliotheque {
 
     private static final List<Document> documents = new LinkedList();
     private static final List<Abonne> abonnes = new LinkedList();
-    private static final Object verrou = new Object();
 
     private static Abonne getAbonne(int num) {
         for (Abonne abonne : abonnes) {
@@ -28,20 +27,22 @@ public class Bibliotheque {
     }
 
     public static void reserver(int abonne, int document) throws PasLibreException {
-        synchronized (verrou) {
-            getDocument(document).reserver(getAbonne(abonne));
-        }
+        getDocument(document).reserver(getAbonne(abonne));
     }
 
     public static void emprunter(int abonne, int document) throws PasLibreException {
-        synchronized (verrou) {
-            getDocument(document).emprunter(getAbonne(abonne));
-        }
+        getDocument(document).emprunter(getAbonne(abonne));
     }
 
     public static void rendreDispo(int document) {
-        synchronized (verrou) {
-            getDocument(document).rendreDispo();
-        }
+        getDocument(document).rendreDispo();
+    }
+
+    public static void addAbonne(Abonne abonne) {
+        abonnes.add(abonne);
+    }
+
+    public static void addDocument(Document document) {
+        documents.add(document);
     }
 }

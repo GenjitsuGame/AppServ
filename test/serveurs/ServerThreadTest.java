@@ -5,11 +5,20 @@
  */
 package serveurs;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  *
  * @author scalpa
  */
-public interface ServiceExecutor {
+public class ServerThreadTest {
     
-    void invoke(Runnable r);
+    public ServerThreadTest() {
+    }
+
+    @Test
+    public void testSomeMethod() {
+    }
+    
 }

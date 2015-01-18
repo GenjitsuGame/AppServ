@@ -1,29 +1,25 @@
 package bibliotheque;
 
-public class Abonne implements Runnable{
-	private int numero;
-	private String nom;
-	private boolean surPlace;
+public class Abonne {
 
-	public int getNumero() {
-		return numero;
-	}
+    private int numero;
+    private String nom;
 
-	public void setNumero(int numero) {
-		this.numero = numero;
-	}
-	
-	public void reserver(int num) throws PasLibreException{
-		
-	}
-	
-	public void emprunter(int num) throws PasLibreException{
-		
-	}
+    public Abonne(int numero, String nom) {
+        this.numero = numero;
+        this.nom = nom;
+    }
 
-	@Override
-	public void run() {
-		
-		
-	}
+    public int getNumero() {
+        return numero;
+    }
+
+    public void setNumero(int numero) {
+        this.numero = numero;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
 }

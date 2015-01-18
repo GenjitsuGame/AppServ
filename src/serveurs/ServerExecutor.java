@@ -7,18 +7,19 @@ package serveurs;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
 
 /**
  *
  * @author scalpa
  */
-public class ServerExecutor extends ServerService {
+public class ServerExecutor extends ServerThread {
 
-    private ServiceExecutor serviceExecutor;
+    private ExecutorService executorService;
 
-    public ServerExecutor(int port, Class<? extends Service> serviceClass, Class<? extends ServiceExecutor> executorClass) throws IOException, InstantiationException, IllegalAccessException {
+    public ServerExecutor(int port, Class<? extends Service> serviceClass, ExecutorService executorService) throws IOException, InstantiationException, IllegalAccessException {
         super(port, serviceClass);
-        this.serviceExecutor = executorClass.newInstance();
+        this.executorService = executorService;
     }
 
     @Override
@@ -30,7 +31,7 @@ public class ServerExecutor extends ServerService {
                 Service dial = serviceClass.newInstance();
                 dial.setSocket(client_socket);
                 this.init(dial);
-                serviceExecutor.invoke(dial);
+                this.executorService.submit(dial);
             }
         } catch (IOException e) {
             System.err.println("Serveur arrete :" + e);
