@@ -15,27 +15,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import serveurs.Service;
 
-/**
- *
- * @author scalpa
- */
-public class ServiceReservation extends Service {
-    
+public class ServiceEmprunt extends Service {
+
     @Override
     public void run() {
         PrintWriter out = null;
         BufferedReader in = null;
-        
+
         try {
             in = new BufferedReader(new InputStreamReader(this.getSocket().getInputStream()));
             out = new PrintWriter(this.getSocket().getOutputStream());
-            
+
             int numAbo = in.read();
             int numDoc = in.read();
-            
-            Bibliotheque.reserver(numAbo, numDoc);
-            
-            out.println("Le document " + numDoc + " a bien ete reserve par l'abonne : " + numAbo);
+
+            Bibliotheque.emprunter(numAbo, numDoc);
+
+            out.println("Le document " + numDoc + " a bien ete emprunte par l'abonne : " + numAbo);
         } catch (PasLibreException e) {
             out.write(e.getMessage());
             out.flush();
@@ -59,5 +55,4 @@ public class ServiceReservation extends Service {
             }
         }
     }
-    
 }

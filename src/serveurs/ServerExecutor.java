@@ -13,11 +13,11 @@ import java.util.concurrent.ExecutorService;
  *
  * @author scalpa
  */
-public class ServerExecutor extends ServerThread {
+public class ServerExecutor extends Server {
 
     private ExecutorService executorService;
 
-    public ServerExecutor(int port, Class<? extends Service> serviceClass, ExecutorService executorService) throws IOException, InstantiationException, IllegalAccessException {
+    public ServerExecutor(int port, Class<? extends Service> serviceClass, ExecutorService executorService) throws IOException {
         super(port, serviceClass);
         this.executorService = executorService;
     }

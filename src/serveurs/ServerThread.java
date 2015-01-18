@@ -16,7 +16,7 @@ public class ServerThread extends Server {
 
     protected Thread thread;
 
-    public ServerThread(int port, Class<? extends Service> serviceClass) throws IOException, InstantiationException, IllegalAccessException {
+    public ServerThread(int port, Class<? extends Service> serviceClass) throws IOException {
         super(port, serviceClass);
         this.thread = new Thread(this);
     }
@@ -42,10 +42,9 @@ public class ServerThread extends Server {
              * déjà testé dans le constructeur
              */
 
-        }
-        /*
+        } /*
          * déjà testé dans le constructeur
-         */  finally {
+         */ finally {
             this.close();
         }
     }

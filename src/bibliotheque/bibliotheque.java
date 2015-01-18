@@ -1,12 +1,13 @@
 package bibliotheque;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Bibliotheque {
 
-    private static final List<Document> documents = new LinkedList();
-    private static final List<Abonne> abonnes = new LinkedList();
+    private static final List<Document> documents = Collections.synchronizedList(new LinkedList());
+    private static final List<Abonne> abonnes = Collections.synchronizedList(new LinkedList());
 
     private static Abonne getAbonne(int num) {
         for (Abonne abonne : abonnes) {
@@ -34,8 +35,8 @@ public class Bibliotheque {
         getDocument(document).emprunter(getAbonne(abonne));
     }
 
-    public static void rendreDispo(int document) {
-        getDocument(document).rendreDispo();
+    public static void rendreDispo(int document, String etat) {
+        getDocument(document).rendreDispo(Document.Etat.valueOf(etat.toUpperCase()));
     }
 
     public static void addAbonne(Abonne abonne) {

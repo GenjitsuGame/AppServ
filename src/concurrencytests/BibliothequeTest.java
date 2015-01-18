@@ -29,11 +29,23 @@ public class BibliothequeTest {
     private final int NB_ABONNE = 20;
     private final int NB_DOCUMENT = 10;
 
+    public static void main(String[] args) {
+
+        BibliothequeTest bt = new BibliothequeTest();
+        bt.testSomeMethod();
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ApplicationTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public BibliothequeTest() {
 
         resetNum();
         for (int i = 0; i < NB_ABONNE; ++i) {
-            Bibliotheque.addAbonne(new Abonne(getNumero(), getNom()));
+            int num = getNumero();
+            Bibliotheque.addAbonne(new Abonne(num, String.valueOf(num)));
         }
 
         resetNum();
@@ -45,10 +57,6 @@ public class BibliothequeTest {
 
     private int getNumero() {
         return num++;
-    }
-
-    private String getNom() {
-        return String.valueOf(num);
     }
 
     private void resetNum() {
@@ -93,7 +101,7 @@ public class BibliothequeTest {
         while (true) {
             try {
                 System.out.println("Waiting for the service to terminate...");
-                if (ses.awaitTermination(5, TimeUnit.SECONDS)) {
+                if (ses.awaitTermination(10, TimeUnit.SECONDS)) {
                     break;
                 }
             } catch (InterruptedException e) {

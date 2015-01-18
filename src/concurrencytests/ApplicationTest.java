@@ -5,8 +5,15 @@
  */
 package concurrencytests;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import serveurs.ServerExecutor;
+import services.ServiceEmprunt;
+import services.ServiceReservation;
+import services.ServiceRetour;
 
 /**
  *
@@ -16,13 +23,20 @@ public class ApplicationTest {
 
     public static void main(String[] args) {
 
-        BibliothequeTest bt = new BibliothequeTest();
-        bt.testSomeMethod();
+        new BibliothequeTest();
+        
+        ExecutorService services = Executors.newFixedThreadPool(20);
+        ExecutorService serveurs = Executors.newFixedThreadPool(3);
+        
         try {
-            Thread.sleep(10000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(ApplicationTest.class.getName()).log(Level.SEVERE, null, ex);
+            serveurs.submit(new ServerExecutor(2500, ServiceReservation.class, services));
+            serveurs.submit(new ServerExecutor(2600, ServiceEmprunt.class, services));
+            serveurs.submit(new ServerExecutor(2700, ServiceRetour.class, services));
+        } catch (IOException iOException) {
         }
+        
+        
+       
     }
 
 }

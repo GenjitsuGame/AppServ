@@ -13,7 +13,7 @@ public abstract class Server implements Runnable {
 	// Cree un serveur TCP : c'est un objet de la
     // classe ServerSocket
 
-    public Server(int port, Class<? extends Service> serviceClass) throws IOException, InstantiationException, IllegalAccessException {
+    public Server(int port, Class<? extends Service> serviceClass) throws IOException {
         this.listen_socket = new ServerSocket(port);
         this.serviceClass = serviceClass;
     }
