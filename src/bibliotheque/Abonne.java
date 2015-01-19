@@ -1,22 +1,26 @@
 package bibliotheque;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Abonne {
 
     private static final long BAN_LENGTH = 30;
-    
+
     private int numero;
     private String nom;
-    private Date interdit;
+    private int age;
+    private ScheduledFuture interdit;
 
-    public Abonne(int numero, String nom) {
+    private final Object verrou;
+
+    public Abonne(int numero, String nom, int age) {
         this.numero = numero;
         this.nom = nom;
+        this.age = age;
+        this.verrou = new Object();
     }
 
     public int getNumero() {
@@ -32,13 +36,25 @@ public class Abonne {
     }
 
     public void interdire() {
-        this.interdit = new Date(new Date().getTime() + Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-            this.interdit = null;
-        }, BAN_LENGTH, TimeUnit.DAYS).getDelay(TimeUnit.MILLISECONDS));
+        synchronized (this.verrou) {
+            this.interdit = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                this.interdit = null;
+            }, BAN_LENGTH, TimeUnit.DAYS);
+        }
     }
-    
-    public long getInterdit() {
-        return this.interdit.getTime();
+
+    public boolean estInterdit() {
+        synchronized (this.verrou) {
+            if (this.interdit == null) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
+    public int getAge() {
+        return this.age;
     }
 
     @Override
@@ -66,6 +82,5 @@ public class Abonne {
         }
         return true;
     }
-    
-    
+
 }

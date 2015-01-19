@@ -1,7 +1,5 @@
 package bibliotheque;
 
-import com.sun.corba.se.spi.ior.ObjectKey;
-
 public interface Document {
 
     public final long DELAI_RESERVATION = 5;
@@ -19,6 +17,10 @@ public interface Document {
 
     void emprunter(Abonne ab) throws PasLibreException;
 
-    void rendreDispo(Etat etat);
+    void rendreDispo(Etat etat) throws ProblemeRetourException;
+    
+    void setEtat(EtatDocument etatDocument);
+    
+    int getEmprunteur();
 
 }

@@ -1,21 +1,37 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package documents;
 
+import bibliotheque.Abonne;
 import bibliotheque.DocumentBibliotheque;
+import bibliotheque.PasLibreException;
 
-/**
- *
- * @author scalpa
- */
 public class DVD extends DocumentBibliotheque {
 
-    
-    public DVD(int numero) {
+    private int ageMinimum;
+
+    public DVD(int numero, int ageMinimum) {
         super(numero);
+        this.ageMinimum = ageMinimum;
     }
-    
+
+    @Override
+    public void emprunter(Abonne ab) throws PasLibreException {
+        synchronized (this.verrou) {
+            if (ab.getAge() < this.ageMinimum) {
+                throw new IllegalArgumentException("L'abonne est trop jeune pour ce document.");
+            }
+            super.emprunter(ab);
+        }
+
+    }
+
+    @Override
+    public void reserver(Abonne ab) throws PasLibreException {
+        synchronized (this.verrou) {
+            if (ab.getAge() < this.ageMinimum) {
+                throw new IllegalArgumentException("L'abonne est trop jeune pour ce document.");
+            }
+            super.reserver(ab);
+        }
+    }
+
 }

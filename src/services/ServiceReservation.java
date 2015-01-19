@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package services;
 
 import bibliotheque.Bibliotheque;
@@ -15,29 +10,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import serveurs.Service;
 
-/**
- *
- * @author scalpa
- */
 public class ServiceReservation extends Service {
-    
+
     @Override
     public void run() {
         PrintWriter out = null;
         BufferedReader in = null;
-        
+
         try {
             in = new BufferedReader(new InputStreamReader(this.getSocket().getInputStream()));
             out = new PrintWriter(this.getSocket().getOutputStream());
-            
+
             int numAbo = in.read();
             int numDoc = in.read();
-            
+
             Bibliotheque.reserver(numAbo, numDoc);
-            
+
             out.println("Le document " + numDoc + " a bien ete reserve par l'abonne : " + numAbo);
         } catch (PasLibreException e) {
             out.write(e.getMessage());
+            out.flush();
+            try {
+                in.read();
+            } catch (IOException ex) {
+                Logger.getLogger(ServiceReservation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            out.write("Erreur lors du traitement de la demande : " + e.getMessage());
             out.flush();
             try {
                 in.read();
@@ -59,5 +58,5 @@ public class ServiceReservation extends Service {
             }
         }
     }
-    
+
 }

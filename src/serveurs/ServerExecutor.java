@@ -1,18 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package serveurs;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
-/**
- *
- * @author scalpa
- */
 public class ServerExecutor extends Server {
 
     private ExecutorService executorService;

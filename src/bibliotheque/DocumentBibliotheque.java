@@ -1,35 +1,23 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package bibliotheque;
 
 import static bibliotheque.Document.DELAI_RESERVATION;
 import static bibliotheque.Document.DELAI_RETOUR;
-import documents.Livre;
-import java.util.Date;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author scalpa
- */
 public abstract class DocumentBibliotheque implements Document {
+
     protected final int numero;
-    protected Abonne emprunteur;
-    protected Date dateDispo;
     protected final Object verrou;
-    protected ScheduledFuture<Abonne> emprunt;
-    
-     public DocumentBibliotheque(int numero) {
+    protected ScheduledFuture emprunt;
+    protected Abonne emprunteur;
+    protected EtatDocument etatDocument;
+
+    public DocumentBibliotheque(int numero) {
         this.numero = numero;
         this.verrou = new Object();
+        this.etatDocument = EtatDocument.getEtatInitial();
     }
 
     @Override
@@ -40,57 +28,78 @@ public abstract class DocumentBibliotheque implements Document {
     @Override
     public void reserver(Abonne ab) throws PasLibreException {
         synchronized (this.verrou) {
-            if (this.emprunt == null) {
-                throw new PasLibreException("Le " + this.getClass().getSimpleName() + " : " + this.numero + " n'est pas disponible.\n"
-                        + "Il sera disponible au plus tard le : " + this.dateDispo);
+            if (ab.estInterdit()) {
+                throw new IllegalArgumentException("L'abonne " + ab.getNumero() + " est interdit d'emprunt.");
+            }
+
+            if (this.emprunt != null || this.emprunteur != null) {
+                throw new PasLibreException("Le " + this.getClass().getSimpleName() + " : " + this.numero + " n'est pas disponible.");
             }
             this.emprunteur = ab;
-            this.emprunt = Executors.newSingleThreadScheduledExecutor().schedule(() -> ab, DELAI_RESERVATION, TimeUnit.HOURS);
-
+            this.etatDocument.reserver(this);
+            this.emprunt = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                this.etatDocument.rendreDispo(this);
+                this.emprunteur = null;
+                this.emprunt = null;
+            }, DELAI_RESERVATION, TimeUnit.HOURS);
         }
     }
 
     @Override
     public void emprunter(Abonne ab) throws PasLibreException {
         synchronized (this.verrou) {
+            if (ab.estInterdit()) {
+                throw new IllegalArgumentException("L'abonne " + ab.getNumero() + " est interdit d'emprunt.");
+            }
+
             try {
-                if (this.emprunt == null || this.emprunt.get().equals(ab)) {
-                    this.emprunteur = ab;
-                    this.emprunt = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-                        ab.interdire();
-                        return ab;
-                    }, DELAI_RETOUR, TimeUnit.DAYS);
-                } else {
-                    throw new PasLibreException("Le " + this.getClass().getSimpleName() + " : " + this.numero + " n'est pas disponible.\n");
-                }
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Livre.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ExecutionException ex) {
-                Logger.getLogger(Livre.class.getName()).log(Level.SEVERE, null, ex);
-            } 
+                this.etatDocument.emprunter(this, ab);
+                this.emprunteur = ab;
+                this.emprunt = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                }, DELAI_RETOUR, TimeUnit.DAYS);
+            } catch (IllegalStateException e) {
+                throw new PasLibreException("Le " + this.getClass().getSimpleName() + " : " + this.numero + " n'est pas disponible.");
+            }
         }
     }
 
     @Override
-    public void rendreDispo(Etat etat) {
+    public void rendreDispo(Etat etat) throws ProblemeRetourException {
         synchronized (this.verrou) {
-            if (etat == Etat.DEGRADE) {
-                try {
-                    this.emprunt.get().interdire();
-                } catch (InterruptedException | ExecutionException ex) {
-                    Logger.getLogger(Livre.class.getName()).log(Level.SEVERE, null, ex);
+
+            this.etatDocument.rendreDispo(this);
+
+            if ((etat == Etat.DEGRADE) || this.emprunt.isDone()) {
+                this.emprunteur.interdire();
+                int numEmprunteur = this.emprunteur.getNumero();
+                this.emprunteur = null;
+                if ((etat == Etat.DEGRADE)) {
+                    this.emprunt.cancel(true);
+                    this.emprunt = null;
+                    throw new ProblemeRetourException(numEmprunteur + " est interdit d'emprunt pendant 1 mois pour avoir rendu le "
+                            + this.getClass().getSimpleName() + " : " + numero + " dans un sale etat.");
+                } else if (this.emprunt.isDone()) {
+                    this.emprunt = null;
+                    throw new ProblemeRetourException(numEmprunteur + " est interdit d'emprunt pendant 1 mois pour avoir rendu le "
+                            + this.getClass().getSimpleName() + " : " + numero + " en retard.");
                 }
+            } else {
+                this.emprunteur = null;
+                this.emprunt.cancel(true);
+                this.emprunt = null;
             }
-            
-            this.emprunteur = null;
-            this.dateDispo = null;
         }
     }
 
-    public boolean isDispo() {
-        synchronized (this.verrou) {
-            return this.emprunteur == null;
-        }
+    @Override
+    public void setEtat(EtatDocument etatDocument
+    ) {
+        this.etatDocument = etatDocument;
+    }
+
+    @Override
+    public int getEmprunteur() {
+        return emprunteur.getNumero();
     }
 
 }
